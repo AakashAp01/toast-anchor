@@ -1,0 +1,16 @@
+# Ignore source code (users only need the 'dist' folder)
+src/
+
+# Ignore configuration files
+tsup.config.ts
+tsconfig.json
+.eslintrc*
+.prettierrc*
+
+# Ignore GitHub actions/workflows
+.github/
+
+# Ignore tests
+__tests__/
+*.test.js
+*.spec.js

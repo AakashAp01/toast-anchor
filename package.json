@@ -2,6 +2,7 @@
   "name": "toast-anchor",
   "version": "1.0.0",
   "description": "A lightweight, Tailwind-powered toast and modal library.",
+  "type": "commonjs",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -12,10 +13,6 @@
     "build": "tsup src/index.js --format cjs,esm --clean --minify",
     "dev": "tsup src/index.js --format cjs,esm --watch"
   },
-  "devDependencies": {
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
-  },
   "keywords": [
     "toast",
     "notification",
@@ -23,6 +20,18 @@
     "javascript",
     "ui"
   ],
+  "homepage": "https://github.com/AakashAp01/toast-anchor#readme",
+  "bugs": {
+    "url": "https://github.com/AakashAp01/toast-anchor/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AakashAp01/toast-anchor.git"
+  },
   "author": "AkashAp",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
 }
