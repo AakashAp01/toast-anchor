@@ -15,5 +15,14 @@
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
-  }
+  },
+  "keywords": [
+    "toast",
+    "notification",
+    "react",
+    "javascript",
+    "ui"
+  ],
+  "author": "AkashAp",
+  "license": "MIT"
 }
