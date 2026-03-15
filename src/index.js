@@ -90,26 +90,26 @@
  */
 
 // ── Re-export everything ──────────────────────────────────────────────────────
-export { DEFAULTS }           from './src/defaults.js';
-export { ICONS }              from './src/icons.js';
-export { SOUND_PROFILES }     from './src/audio.js';
-export { playSound }          from './src/audio.js';
-export { configure }          from './src/configure.js';
-export { createToast, dismissToast, dismissAll } from './src/core-toast.js';
-export { promiseToast }       from './src/promise-toast.js';
-export { anchoredToast }      from './src/anchored-toast.js';
-export { anchoredConfirm }    from './src/anchored-confirm.js';
-export { modalConfirm }       from './src/modal-confirm.js';
-export { useToast }           from './src/react-hook.js';
+export { DEFAULTS }           from './defaults.js';
+export { ICONS }              from './icons.js';
+export { SOUND_PROFILES }     from './audio.js';
+export { playSound }          from './audio.js';
+export { configure }          from './configure.js';
+export { createToast, dismissToast, dismissAll } from './core-toast.js';
+export { promiseToast }       from './promise-toast.js';
+export { anchoredToast }      from './anchored-toast.js';
+export { anchoredConfirm }    from './anchored-confirm.js';
+export { modalConfirm }       from './modal-confirm.js';
+export { useToast }           from './react-hook.js';
 
 // ── Named convenience imports ─────────────────────────────────────────────────
-import { createToast, dismissToast, dismissAll } from './src/core-toast.js';
-import { promiseToast }    from './src/promise-toast.js';
-import { anchoredToast }   from './src/anchored-toast.js';
-import { anchoredConfirm } from './src/anchored-confirm.js';
-import { modalConfirm }    from './src/modal-confirm.js';
-import { configure }       from './src/configure.js';
-import { ICONS }           from './src/icons.js';
+import { createToast, dismissToast, dismissAll } from './core-toast.js';
+import { promiseToast }    from './promise-toast.js';
+import { anchoredToast }   from './anchored-toast.js';
+import { anchoredConfirm } from './anchored-confirm.js';
+import { modalConfirm }    from './modal-confirm.js';
+import { configure }       from './configure.js';
+import { ICONS }           from './icons.js';
 
 /**
  * Default export — the `toast` object with all methods.
