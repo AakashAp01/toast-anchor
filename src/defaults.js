@@ -1,40 +1,23 @@
 /**
- * defaults.js — Global defaults for all toast types.
- * Mutated by configure(). All per-call options override these.
+ * defaults.js — Global configuration defaults for all toast components.
  *
- * NOTE: sound defaults to FALSE. Pass { sound: true } per-call
- *       or configure({ sound: true }) to enable globally.
+ * Every option here can be overridden globally via configure() or
+ * per-call by passing the same key in the options object.
+ *
+ * Sound is OFF by default. Pass `sound: true` per-call, or enable
+ * globally: configure({ sound: true })
  */
 
 export const DEFAULTS = {
-  // ── Positioning & lifecycle ──────────────────────────────
-  position:       'bottom-right', // top-left | top-center | top-right | bottom-left | bottom-center | bottom-right
-  duration:       4000,           // ms — 0 = stay until dismissed
-  sound:          false,          // Sound OFF by default
-
-  // ── Behaviour ────────────────────────────────────────────
+  /* ── Global behaviour ─────────────────────────────────────── */
+  position:       'bottom-right',
+  duration:       4000,
+  sound:          false,
   dismissOnClick: false,
   showProgress:   false,
   maxToasts:      5,
 
-  // ── Notify toast appearance ──────────────────────────────
-  toast: {
-    bg:            '#ffffff',
-    borderColor:   '#f1f5f9',
-    borderRadius:  '14px',
-    shadow:        '0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
-    width:         '316px',
-    padding:       '13px 14px',
-    titleColor:    '#1e293b',
-    descColor:     '#64748b',
-    titleSize:     '13.5px',
-    descSize:      '12px',
-    titleWeight:   '600',
-    iconSize:      '32px',
-    iconRadius:    '50%',
-  },
-
-  // ── Per-type colour tokens ───────────────────────────────
+  /* ── Per-type icon palette (used for icon bg/color) ────────── */
   theme: {
     success: { bg: '#10b981', light: '#d1fae5' },
     error:   { bg: '#ef4444', light: '#fee2e2' },
@@ -42,76 +25,150 @@ export const DEFAULTS = {
     info:    { bg: '#3b82f6', light: '#dbeafe' },
   },
 
-  // ── Anchored toast appearance ────────────────────────────
-  anchored: {
-    bg:           '#0f172a',
-    textColor:    '#ffffff',
-    arrowColor:   null,
-    borderRadius: '10px',
-    fontSize:     '13px',
-    fontWeight:   '600',
-    padding:      '8px 14px',
-    shadow:       '0 8px 24px rgba(0,0,0,0.2)',
-    iconSize:     '15px',
-    arrowSize:    '10px',
+  /* ── Toast card appearance ──────────────────────────────────
+   *  Every key here can also be passed directly in createToast options
+   *  (flat, no nesting required per-call).
+   */
+  toast: {
+    bg:            '#ffffff',
+    color:         '#1e293b',
+    descColor:     '#64748b',
+    borderColor:   '#f1f5f9',
+    borderWidth:   '1px',
+    borderRadius:  '14px',
+    shadow:        '0 4px 24px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04)',
+    padding:       '13px 14px',
+    width:         '316px',
+    fontSize:      '13.5px',
+    fontWeight:    '600',
+    descFontSize:  '12px',
+    descFontWeight:'400',
+    closeColor:    '#cbd5e1',
+    closeHoverColor:'#94a3b8',
+    progressH:     '3px',
+    progressRadius:'0 0 14px 14px',
+    iconSize:      '32px',
+    iconRadius:    '50%',
+    actionColor:   null,
+    actionFontSize:'12px',
   },
 
-  // ── Anchored confirm appearance ──────────────────────────
+  /* ── Anchored toast (tooltip-style popup) ─────────────────── */
+  anchored: {
+    position:     'top',    // 'top' | 'bottom' | 'left' | 'right'
+    bg:           '#0f172a',
+    color:        '#ffffff',
+    borderColor:  'transparent',
+    borderWidth:  '0px',
+    borderRadius: '10px',
+    shadow:       '0 8px 24px rgba(0,0,0,0.2)',
+    padding:      '8px 14px',
+    fontSize:     '13px',
+    fontWeight:   '600',
+    arrowSize:    10,
+    showArrow:    true,
+    gap:          13,
+  },
+
+  /* ── Anchored confirm popup ───────────────────────────────── */
   anchoredConfirm: {
+    position:       'top',
     bg:             '#0f172a',
-    textColor:      '#f8fafc',
-    iconColor:      '#fca5a5',
+    color:          '#f8fafc',
+    borderColor:    'transparent',
+    borderWidth:    '0px',
     borderRadius:   '12px',
-    fontSize:       '13px',
-    padding:        '12px 14px',
     shadow:         '0 8px 28px rgba(0,0,0,0.22)',
+    padding:        '12px 14px',
+    fontSize:       '13px',
     minWidth:       '160px',
-    arrowColor:     null,
-    arrowSize:      '10px',
     confirmBg:      '#ef4444',
     confirmColor:   '#ffffff',
     confirmHoverBg: '#dc2626',
     cancelBg:       '#1e293b',
     cancelColor:    '#94a3b8',
+    cancelHoverBg:  '#334155',
     cancelBorder:   '#334155',
-    cancelHoverBg:  '#273549',
     btnRadius:      '8px',
     btnFontSize:    '12px',
     btnFontWeight:  '700',
     btnPadding:     '6px 0',
+    arrowSize:      10,
+    showArrow:      true,
+    gap:            13,
   },
 
-  // ── Modal confirm appearance ─────────────────────────────
+  /* ── Modal confirm ────────────────────────────────────────── */
   modal: {
-    overlayBg:        'rgba(15,23,42,0.55)',
-    overlayBlur:      '5px',
-    bg:               '#ffffff',
-    borderRadius:     '20px',
-    shadow:           '0 25px 60px rgba(0,0,0,0.22)',
-    maxWidth:         '420px',
-    padding:          '24px 24px 20px',
-    footerBg:         '#f8fafc',
-    footerBorder:     '#f1f5f9',
-    footerPadding:    '14px 24px 18px',
-    titleColor:       '#0f172a',
-    titleSize:        '17px',
-    titleWeight:      '700',
-    messageColor:     '#64748b',
-    messageSize:      '14px',
-    iconCircleSize:   '48px',
-    iconSize:         '24px',
-    confirmBg:        '#ef4444',
-    confirmColor:     '#ffffff',
-    confirmHoverBg:   '#dc2626',
-    confirmRadius:    '10px',
-    confirmPadding:   '9px 22px',
-    confirmFontSize:  '13.5px',
-    confirmWeight:    '600',
-    cancelColor:      '#475569',
-    cancelHoverBg:    '#f1f5f9',
-    cancelRadius:     '10px',
-    cancelPadding:    '9px 18px',
-    cancelFontSize:   '13.5px',
-    cancelWeight:     '500',
+    overlayBg:       'rgba(15,23,42,0.55)',
+    overlayBlur:     '5px',
+    bg:              '#ffffff',
+    borderColor:     'transparent',
+    borderWidth:     '0px',
+    borderRadius:    '20px',
+    shadow:          '0 25px 60px rgba(0,0,0,0.22)',
+    maxWidth:        '420px',
+    padding:         '24px',
+    footerBg:        '#f8fafc',
+    footerBorder:    '#f1f5f9',
+    footerPaddingV:  '14px',
+    footerPaddingVB: '18px',
+    titleColor:      '#0f172a',
+    titleSize:       '17px',
+    titleWeight:     '700',
+    titleMargin:     '0 0 8px',
+    messageColor:    '#64748b',
+    messageSize:     '14px',
+    iconSize:        '48px',
+    iconRadius:      '50%',
+    iconBg:          null,
+    iconColor:       null,
+    confirmBg:       null,
+    confirmColor:    '#ffffff',
+    confirmHoverBg:  null,
+    confirmRadius:   '10px',
+    confirmSize:     '13.5px',
+    confirmWeight:   '600',
+    confirmPadding:  '9px 22px',
+    cancelColor:     '#475569',
+    cancelHoverBg:   '#f1f5f9',
+    cancelRadius:    '10px',
+    cancelSize:      '13.5px',
+    cancelWeight:    '500',
+    cancelPadding:   '9px 18px',
+    cancelBg:        'transparent',
+    cancelBorder:    'none',
   },
 };
+
+/**
+ * Deep-merge options into global DEFAULTS.
+ *
+ * Sub-objects (toast, anchored, anchoredConfirm, modal, theme) are merged
+ * shallowly so you only need to pass the keys you want to change.
+ *
+ * @example
+ * configure({
+ *   position: 'top-right',
+ *   sound: true,
+ *   toast:  { bg: '#1e1e2e', color: '#cdd6f4', borderRadius: '8px' },
+ *   modal:  { borderRadius: '12px', overlayBg: 'rgba(0,0,0,0.7)' },
+ *   theme:  { success: { bg: '#a6e3a1', light: '#1e3a2f' } },
+ * });
+ */
+export function configure(options = {}) {
+  const SUB_KEYS = ['toast', 'anchored', 'anchoredConfirm', 'modal', 'theme'];
+  for (const [k, v] of Object.entries(options)) {
+    if (SUB_KEYS.includes(k) && v && typeof v === 'object') {
+      if (k === 'theme') {
+        for (const [tk, tv] of Object.entries(v)) {
+          DEFAULTS.theme[tk] = { ...DEFAULTS.theme[tk], ...tv };
+        }
+      } else {
+        Object.assign(DEFAULTS[k], v);
+      }
+    } else {
+      DEFAULTS[k] = v;
+    }
+  }
+}

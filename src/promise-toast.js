@@ -1,45 +1,34 @@
 /**
- * promise-toast.js — Tracks a Promise with loading → success/error states.
+ * promise-toast.js — Track a Promise through loading → success / error states.
  */
 
-import { createToast, dismissToast } from './core-toast.js';
-import { ICONS }                      from './icons.js';
+import { ICONS }                         from './icons.js';
+import { DEFAULTS }                      from './defaults.js';
+import { createToast, dismissToast, _active } from './core-toast.js';
 
-let seq = 0;
+let _seq = 0;
 
 /**
- * Show a loading toast while a Promise is pending, then switch to success/error.
+ * Track a Promise with loading → success/error toast states.
  *
  * @param {Promise}  promise
  * @param {object}   messages
  * @param {string}            [messages.loading='Loading…']
- * @param {string|function}   [messages.success='Done!']        receives resolved value
- * @param {string|function}   [messages.error='Something went wrong'] receives error
- * @param {object}   [options] — any createToast option; applies to all states
- *
- * ── Per-state option overrides ────────────────────────────
- * @param {object}   [options.loadingOptions]  extra opts for loading toast
- * @param {object}   [options.successOptions]  extra opts for success toast
- * @param {object}   [options.errorOptions]    extra opts for error toast
- *
- * @returns {function} dismiss — manually dismiss the loading toast
+ * @param {string|function}   [messages.success='Done!']     receives resolved value
+ * @param {string|function}   [messages.error='Something went wrong']  receives error
+ * @param {object}   [options]  forwarded to createToast — all style overrides apply
+ * @returns {function} dismiss — cancels the loading indicator early
  *
  * @example
- * toast.promise(saveUser(data), {
- *   loading: 'Saving…',
- *   success: (user) => `Welcome, ${user.name}!`,
- *   error:   (err)  => `Failed: ${err.message}`,
- * });
- *
- * @example — with custom colours per state
- * toast.promise(fetchData(), {
- *   loading: 'Fetching…',
- *   success: 'Got it!',
- *   error:   'Oops!',
- * }, {
- *   successOptions: { bg: '#f0fdf4', iconBg: '#bbf7d0' },
- *   errorOptions:   { bg: '#fff1f2' },
- * });
+ * toast.promise(
+ *   fetch('/api/save').then(r => r.json()),
+ *   {
+ *     loading: 'Saving…',
+ *     success: (data) => `Saved "${data.name}"!`,
+ *     error:   (err)  => `Failed: ${err.message}`,
+ *   },
+ *   { position: 'top-right', sound: true }
+ * );
  */
 export function promiseToast(promise, messages = {}, options = {}) {
   const {
@@ -48,34 +37,27 @@ export function promiseToast(promise, messages = {}, options = {}) {
     error   = 'Something went wrong',
   } = messages;
 
-  const {
-    loadingOptions = {},
-    successOptions = {},
-    errorOptions   = {},
-    ...sharedOptions
-  } = options;
-
-  const id = `__toast_p${++seq}`;
+  const id = `__tk_p${++_seq}`;
 
   createToast(loading, {
-    ...sharedOptions,
-    ...loadingOptions,
     type:     'info',
     duration: 0,
     icon:     ICONS.loading,
+    sound:    false,
     id,
+    ...options,
   });
 
   Promise.resolve(promise)
     .then((result) => {
       dismissToast(id);
       const msg = typeof success === 'function' ? success(result) : success;
-      createToast(msg, { ...sharedOptions, ...successOptions, type: 'success' });
+      createToast(msg, { type: 'success', ...options });
     })
     .catch((err) => {
       dismissToast(id);
       const msg = typeof error === 'function' ? error(err) : error;
-      createToast(msg, { ...sharedOptions, ...errorOptions, type: 'error' });
+      createToast(msg, { type: 'error', ...options });
     });
 
   return () => dismissToast(id);

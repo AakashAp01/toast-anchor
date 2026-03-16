@@ -1,15 +1,11 @@
 /**
- * audio.js — Sound engine for toast notifications
- * Default: sound is OFF. Pass { sound: true } or configure({ sound: true }) to enable.
+ * audio.js — Web Audio engine for toast sounds.
+ * AudioContext is created lazily on first use to avoid browser warnings.
  */
 
-let audioCtx = null;
+let _ctx = null;
 
-/**
- * Sound profiles per toast type.
- * Each profile: { wave, sf (start freq), ef (end freq), gs (gain start), ge (gain end), dur (seconds) }
- */
-const SOUND_PROFILES = {
+const PROFILES = {
   success: { wave: 'sine',     sf: 600, ef: 900, gs: 0.15, ge: 0.01, dur: 0.15 },
   error:   { wave: 'sawtooth', sf: 400, ef: 200, gs: 0.15, ge: 0.01, dur: 0.15 },
   warning: { wave: 'triangle', sf: 600, ef: 380, gs: 0.12, ge: 0.01, dur: 0.13 },
@@ -18,35 +14,28 @@ const SOUND_PROFILES = {
 };
 
 /**
- * Play a tone for the given notification type.
- * Silently no-ops in non-browser environments or if Web Audio is unavailable.
- *
+ * Play a short synthesised chime.
  * @param {'success'|'error'|'warning'|'info'|'pop'} type
- * @param {object} [customProfile] - override any profile keys
  */
-export function playSound(type = 'success', customProfile = {}) {
+export function playSound(type = 'success') {
   if (typeof window === 'undefined') return;
   try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_ctx.state === 'suspended') _ctx.resume();
 
-    const osc  = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    const p    = { ...(SOUND_PROFILES[type] || SOUND_PROFILES.pop), ...customProfile };
-    const now  = audioCtx.currentTime;
+    const p    = PROFILES[type] || PROFILES.pop;
+    const osc  = _ctx.createOscillator();
+    const gain = _ctx.createGain();
+    const t    = _ctx.currentTime;
 
     osc.type = p.wave;
-    osc.frequency.setValueAtTime(p.sf, now);
-    osc.frequency.exponentialRampToValueAtTime(p.ef, now + p.dur);
-    gain.gain.setValueAtTime(p.gs, now);
-    gain.gain.exponentialRampToValueAtTime(p.ge, now + p.dur);
+    osc.frequency.setValueAtTime(p.sf, t);
+    osc.frequency.exponentialRampToValueAtTime(p.ef, t + p.dur);
+    gain.gain.setValueAtTime(p.gs, t);
+    gain.gain.exponentialRampToValueAtTime(p.ge, t + p.dur);
     osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    gain.connect(_ctx.destination);
     osc.start();
-    osc.stop(now + p.dur);
-  } catch (_) { /* silent fail */ }
+    osc.stop(t + p.dur);
+  } catch (_) { /* silent fail — audio may be blocked */ }
 }
-
-export { SOUND_PROFILES };
