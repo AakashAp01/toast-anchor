@@ -1,6 +1,6 @@
 {
   "name": "toast-anchor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A lightweight, Tailwind-powered toast and modal library.",
   "type": "commonjs",
   "main": "./dist/index.js",
