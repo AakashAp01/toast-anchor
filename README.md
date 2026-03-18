@@ -2,7 +2,7 @@
 
 # toast-anchor
 
-![toast-anchor banner](./assets/banner.png)
+![toast-anchor banner](https://github.com/AakashAp01/toast-anchor-landing-page/blob/main/public/og-image.webp)
 
 <br />
 
