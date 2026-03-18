@@ -98,16 +98,17 @@ function App() {
 
 ```
 toast-anchor/
-├── index.js            # Entry — re-exports + default toast object
-├── defaults.js         # DEFAULTS + configure()
-├── core-toast.js       # createToast, dismissToast, dismissAll
-├── promise-toast.js    # promiseToast
-├── anchored-toast.js   # anchoredToast + shared geometry helpers
-├── anchored-confirm.js # anchoredConfirm
-├── modal.js            # modalConfirm
-├── react.js            # useToast hook
-├── icons.js            # ICONS + spinner keyframe
-└── audio.js            # playSound (lazy AudioContext)
+    └── src/
+        ├── index.js            # Entry — re-exports + default toast object
+        ├── defaults.js         # DEFAULTS + configure()
+        ├── core-toast.js       # createToast, dismissToast, dismissAll
+        ├── promise-toast.js    # promiseToast
+        ├── anchored-toast.js   # anchoredToast + shared geometry helpers
+        ├── anchored-confirm.js # anchoredConfirm
+        ├── modal.js            # modalConfirm
+        ├── react.js            # useToast hook
+        ├── icons.js            # ICONS + spinner keyframe
+        └── audio.js            # playSound (lazy AudioContext)
 ```
 
 ---
