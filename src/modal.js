@@ -92,6 +92,11 @@ export function modalConfirm(title, message, options = {}) {
     const MD = DEFAULTS.modal;
     const o  = { ...MD, confirmLabel: 'Confirm', cancelLabel: 'Cancel', confirmVariant: 'danger', icon: null, sound: DEFAULTS.sound, ...options };
 
+    // Resolve position alignment
+    const isTop      = o.position === 'top';
+    const alignItems = isTop ? 'flex-start' : 'center';
+    const overlayPad = isTop ? 'padding:5vh 16px 16px' : 'padding:16px';
+
     if (o.sound) playSound('warning');
 
     // ── Auto-derive variant colors (overridden if explicitly set) ──────────
@@ -113,9 +118,9 @@ export function modalConfirm(title, message, options = {}) {
       'inset:0',
       'z-index:99999',
       'display:flex',
-      'align-items:center',
+      `align-items:${alignItems}`,
       'justify-content:center',
-      'padding:16px',
+      overlayPad,
       `background:${o.overlayBg}`,
       `backdrop-filter:blur(${o.overlayBlur})`,
       '-webkit-backdrop-filter:blur(' + o.overlayBlur + ')',

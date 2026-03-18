@@ -9,6 +9,9 @@ import { ICONS }     from './icons.js';
 import { playSound } from './audio.js';
 import { placeElement, arrowStyle, entryTransform, exitTransform } from './anchored-toast.js';
 
+// Track last anchored confirm per anchor for auto-dismiss on re-trigger
+const _confirmMap = new WeakMap();
+
 /**
  * Show an inline confirmation popup anchored to an element.
  *
@@ -74,6 +77,12 @@ export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = 
   const side = o.position;
   if (o.sound) playSound('warning');
 
+  // Auto-dismiss any previous anchored confirm on this anchor
+  const prevDismiss = _confirmMap.get(anchor);
+  if (prevDismiss) prevDismiss();
+
+  const showIcon = o.showIcon !== undefined ? o.showIcon : true;
+
   const el = document.createElement('div');
   el.setAttribute('style', [
     'position:absolute',
@@ -94,7 +103,7 @@ export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = 
 
   el.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <div style="width:15px;height:15px;flex-shrink:0;color:#fca5a5">${ICONS.warning}</div>
+      ${showIcon ? `<div style="width:15px;height:15px;flex-shrink:0;color:#fca5a5">${ICONS.warning}</div>` : ''}
       <span>${message}</span>
     </div>
     <div style="display:flex;gap:7px">
@@ -133,10 +142,13 @@ export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = 
   }));
 
   const dismiss = () => {
+    _confirmMap.delete(anchor);
     el.style.opacity   = '0';
     el.style.transform = exitTransform(side);
     setTimeout(() => el.remove(), 280);
   };
+
+  _confirmMap.set(anchor, dismiss);
 
   const confirmBtn = el.querySelector('[data-confirm]');
   const cancelBtn  = el.querySelector('[data-cancel]');

@@ -134,6 +134,8 @@ export function createToast(message, options = {}) {
     icon:           null,
     action:         null,
     id:             null,
+    showIcon:       undefined,
+    showClose:      undefined,
     ...options,
   };
 
@@ -168,6 +170,8 @@ export function createToast(message, options = {}) {
 
   const icon = o.icon || ICONS[type] || ICONS.success;
   const id   = o.id   || nextId();
+  const showIcon  = o.showIcon  !== undefined ? o.showIcon  : TS.showIcon !== undefined ? TS.showIcon : true;
+  const showClose = o.showClose !== undefined ? o.showClose : TS.showClose !== undefined ? TS.showClose : true;
 
   // Center icon+title vertically when there is no extra content below
   const hasExtra = !!(o.description || o.action);
@@ -205,15 +209,15 @@ export function createToast(message, options = {}) {
   ].join(';'));
 
   el.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:center;width:${iconSize};height:${iconSize};min-width:${iconSize};border-radius:${iconRadius};background:${iconBg};color:${iconColor};flex-shrink:0">
+    ${showIcon ? `<div style="display:flex;align-items:center;justify-content:center;width:${iconSize};height:${iconSize};min-width:${iconSize};border-radius:${iconRadius};background:${iconBg};color:${iconColor};flex-shrink:0">
       <div style="width:16px;height:16px;display:flex">${icon}</div>
-    </div>
+    </div>` : ''}
     <div style="flex:1;min-width:0;${bodyPad}">
       <p style="font-size:${fontSize};font-weight:${fontWeight};color:${color};line-height:1.4;margin:0">${message}</p>
       ${o.description ? `<p style="font-size:${descFontSize};font-weight:${descFontWeight};color:${descColor};margin:3px 0 0;line-height:1.5">${o.description}</p>` : ''}
       ${o.action      ? `<button data-tk-action style="margin-top:7px;font-size:${actionFontSize};font-weight:700;color:${actionColor};background:none;border:none;cursor:pointer;padding:0;display:block;line-height:1">${o.action.label}</button>` : ''}
     </div>
-    <button data-tk-close
+    ${showClose ? `<button data-tk-close
       style="flex-shrink:0;background:none;border:none;cursor:pointer;color:${closeColor};padding:2px;line-height:0;border-radius:4px;transition:color 0.15s"
       title="Dismiss"
       onmouseenter="this.style.color='${closeHoverC}'"
@@ -222,7 +226,7 @@ export function createToast(message, options = {}) {
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
       </svg>
-    </button>
+    </button>` : ''}
     ${o.showProgress && o.duration > 0
       ? `<div data-tk-bar style="position:absolute;bottom:0;left:0;height:${progressH};border-radius:${progressRadius};background:${progressColor};width:100%;transition:width ${o.duration}ms linear"></div>`
       : ''}

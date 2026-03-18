@@ -49,6 +49,17 @@ export function placeElement(el, anchor, side, gap) {
 
 /**
  * Build inline style for the caret arrow (rotated square).
+ *
+ * Only the two border edges that visually continue the container's border
+ * are rendered; the other two are transparent so the arrow merges cleanly
+ * into the popup.
+ *
+ * Mapping (after 45° rotation):
+ *   side='top'    → arrow at bottom  → border-bottom + border-right
+ *   side='bottom' → arrow at top     → border-top    + border-left
+ *   side='left'   → arrow at right   → border-top    + border-right
+ *   side='right'  → arrow at left    → border-bottom + border-left
+ *
  * @param {'top'|'bottom'|'left'|'right'} side  which side the popup appears on
  * @param {number} size      diamond side length in px
  * @param {string} bg        background color (matches popup bg)
@@ -57,11 +68,33 @@ export function placeElement(el, anchor, side, gap) {
  * @returns {string} inline style string
  */
 export function arrowStyle(side, size, bg, borderColor, borderWidth) {
-  const half   = size / 2;
-  const border = borderWidth && borderWidth !== '0px'
-    ? `border:${borderWidth} solid ${borderColor};`
-    : '';
-  const base   = `${border}position:absolute;width:${size}px;height:${size}px;background:${bg};transform:rotate(45deg);`;
+  const half = size / 2;
+  const bw   = borderWidth && borderWidth !== '0px' ? borderWidth : '0px';
+  const bc   = borderColor || 'transparent';
+  const hasBorder = bw !== '0px';
+
+  // Build per-side border (only 2 edges visible per position)
+  let borderCSS = '';
+  if (hasBorder) {
+    const solid = `${bw} solid ${bc}`;
+    const none  = `${bw} solid transparent`;
+    switch (side) {
+      case 'top':    // arrow points down → bottom + right edges visible
+        borderCSS = `border-top:${none};border-right:${solid};border-bottom:${solid};border-left:${none};`;
+        break;
+      case 'bottom': // arrow points up   → top + left edges visible
+        borderCSS = `border-top:${solid};border-right:${none};border-bottom:${none};border-left:${solid};`;
+        break;
+      case 'left':   // arrow points right → top + right edges visible
+        borderCSS = `border-top:${solid};border-right:${solid};border-bottom:${none};border-left:${none};`;
+        break;
+      case 'right':  // arrow points left  → bottom + left edges visible
+        borderCSS = `border-top:${none};border-right:${none};border-bottom:${solid};border-left:${solid};`;
+        break;
+    }
+  }
+
+  const base = `${borderCSS}position:absolute;width:${size}px;height:${size}px;background:${bg};transform:rotate(45deg);`;
 
   switch (side) {
     case 'bottom': return `${base}top:${-half}px;left:50%;margin-left:${-half}px`;
@@ -92,6 +125,10 @@ export function exitTransform(side) {
 }
 
 // ── anchoredToast ────────────────────────────────────────────────────────────
+
+// Track last anchored toast per anchor for auto-dismiss on re-trigger
+const _anchoredMap = new WeakMap();
+
 /**
  * Show a tooltip-style toast anchored to a DOM element.
  *
@@ -134,6 +171,12 @@ export function anchoredToast(message, anchor, options = {}) {
 
   if (o.sound) playSound(o.type);
 
+  // Auto-dismiss any previous anchored toast on this anchor
+  const prevDismiss = _anchoredMap.get(anchor);
+  if (prevDismiss) prevDismiss();
+
+  const showIcon = o.showIcon !== undefined ? o.showIcon : true;
+
   const el = document.createElement('div');
   el.setAttribute('style', [
     'position:absolute',
@@ -155,7 +198,7 @@ export function anchoredToast(message, anchor, options = {}) {
 
   el.innerHTML = `
     <div style="display:flex;align-items:center;gap:7px">
-      <div style="width:15px;height:15px;display:flex;flex-shrink:0;color:${theme.bg}">${icon}</div>
+      ${showIcon ? `<div style="width:15px;height:15px;display:flex;flex-shrink:0;color:${theme.bg}">${icon}</div>` : ''}
       <span>${message}</span>
     </div>
     ${o.showArrow ? `<div style="${arrowStyle(side, o.arrowSize, o.bg, o.borderColor, o.borderWidth)}"></div>` : ''}
@@ -170,10 +213,13 @@ export function anchoredToast(message, anchor, options = {}) {
   }));
 
   const dismiss = () => {
+    _anchoredMap.delete(anchor);
     el.style.opacity   = '0';
     el.style.transform = exitTransform(side);
     setTimeout(() => el.remove(), 300);
   };
+
+  _anchoredMap.set(anchor, dismiss);
 
   if (o.duration > 0) setTimeout(dismiss, o.duration);
   return dismiss;

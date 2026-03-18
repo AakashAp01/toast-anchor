@@ -43,6 +43,8 @@ export const DEFAULTS = {
     fontWeight:    '600',
     descFontSize:  '12px',
     descFontWeight:'400',
+    showIcon:      true,
+    showClose:     true,
     closeColor:    '#cbd5e1',
     closeHoverColor:'#94a3b8',
     progressH:     '3px',
@@ -65,6 +67,7 @@ export const DEFAULTS = {
     padding:      '8px 14px',
     fontSize:     '13px',
     fontWeight:   '600',
+    showIcon:     true,
     arrowSize:    10,
     showArrow:    true,
     gap:          13,
@@ -82,6 +85,7 @@ export const DEFAULTS = {
     padding:        '12px 14px',
     fontSize:       '13px',
     minWidth:       '160px',
+    showIcon:       true,
     confirmBg:      '#ef4444',
     confirmColor:   '#ffffff',
     confirmHoverBg: '#dc2626',
@@ -100,6 +104,7 @@ export const DEFAULTS = {
 
   /* ── Modal confirm ────────────────────────────────────────── */
   modal: {
+    position:        'center',  // 'center' | 'top'
     overlayBg:       'rgba(15,23,42,0.55)',
     overlayBlur:     '5px',
     bg:              '#ffffff',
