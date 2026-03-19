@@ -2,6 +2,9 @@
   "name": "toast-anchor",
   "version": "1.0.6",
   "description": "A lightweight, zero-dependency toast, anchored tooltip, and modal library.",
+  "files": [
+    "dist"
+  ],
   "type": "commonjs",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -20,7 +23,7 @@
     "javascript",
     "ui"
   ],
-  "homepage": "https://github.com/AakashAp01/toast-anchor#readme",
+  "homepage": "https://toast-anchor.vercel.app",
   "bugs": {
     "url": "https://github.com/AakashAp01/toast-anchor/issues"
   },

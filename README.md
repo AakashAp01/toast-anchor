@@ -1,10 +1,12 @@
 <div align="center">
 
-# toast-anchor
-
-![toast-anchor banner](https://github.com/AakashAp01/toast-anchor-landing-page/blob/main/public/og-image.webp)
-
-<br />
+```text
+  _____               _         _               _                
+ |_   _|__  __ _  ___| |_      / \   _ __   ___| |__   ___  _ __ 
+   | |/ _ \/ _` |/ __| __|    / _ \ | '_ \ / __| '_ \ / _ \| '__|
+   | | (_) | (_| \__ \ |_    / ___ \| | | | (__| | | | (_) | |   
+ |_|\___/ \__,_|___/\__|  /_/   \_\_| |_|\___|_| |_|\___/|_| 
+```
 
 [![npm version](https://img.shields.io/npm/v/toast-anchor?color=%2310b981&labelColor=%23111&style=flat-square)](https://www.npmjs.com/package/toast-anchor)
 [![npm downloads](https://img.shields.io/npm/dm/toast-anchor?color=%2310b981&labelColor=%23111&style=flat-square)](https://www.npmjs.com/package/toast-anchor)
@@ -22,35 +24,19 @@
 
 <p>
   <a href="https://toast-anchor.vercel.app/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)"  srcset="https://img.shields.io/badge/Website-%23111827?style=for-the-badge&logo=vercel&logoColor=%2310b981" />
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/badge/Website-%23e4e4e7?style=for-the-badge&logo=vercel&logoColor=%23059669&labelColor=%23e4e4e7" />
-      <img src="https://img.shields.io/badge/Website-%23111827?style=for-the-badge&logo=vercel&logoColor=%2310b981" alt="Website" />
-    </picture>
+    <img src="https://img.shields.io/badge/Website-%23111827?style=for-the-badge&logo=vercel&logoColor=%2310b981" alt="Website" />
   </a>
   &nbsp;
   <a href="https://toast-anchor.vercel.app/playground">
-    <picture>
-      <source media="(prefers-color-scheme: dark)"  srcset="https://img.shields.io/badge/Playground-%23111827?style=for-the-badge&logo=codesandbox&logoColor=%2310b981" />
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/badge/Playground-%23e4e4e7?style=for-the-badge&logo=codesandbox&logoColor=%23059669&labelColor=%23e4e4e7" />
-      <img src="https://img.shields.io/badge/Playground-%23111827?style=for-the-badge&logo=codesandbox&logoColor=%2310b981" alt="Playground" />
-    </picture>
+    <img src="https://img.shields.io/badge/Playground-%23111827?style=for-the-badge&logo=codesandbox&logoColor=%2310b981" alt="Playground" />
   </a>
   &nbsp;
   <a href="https://toast-anchor.vercel.app/docs">
-    <picture>
-      <source media="(prefers-color-scheme: dark)"  srcset="https://img.shields.io/badge/Documentation-%23111827?style=for-the-badge&logo=gitbook&logoColor=%2310b981" />
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/badge/Documentation-%23e4e4e7?style=for-the-badge&logo=gitbook&logoColor=%23059669&labelColor=%23e4e4e7" />
-      <img src="https://img.shields.io/badge/Documentation-%23111827?style=for-the-badge&logo=gitbook&logoColor=%2310b981" alt="Documentation" />
-    </picture>
+    <img src="https://img.shields.io/badge/Documentation-%23111827?style=for-the-badge&logo=gitbook&logoColor=%2310b981" alt="Documentation" />
   </a>
   &nbsp;
   <a href="https://www.npmjs.com/package/toast-anchor">
-    <picture>
-      <source media="(prefers-color-scheme: dark)"  srcset="https://img.shields.io/badge/npm-%23111827?style=for-the-badge&logo=npm&logoColor=%2310b981" />
-      <source media="(prefers-color-scheme: light)" srcset="https://img.shields.io/badge/npm-%23e4e4e7?style=for-the-badge&logo=npm&logoColor=%23059669&labelColor=%23e4e4e7" />
-      <img src="https://img.shields.io/badge/npm-%23111827?style=for-the-badge&logo=npm&logoColor=%2310b981" alt="npm" />
-    </picture>
+    <img src="https://img.shields.io/badge/npm-%23111827?style=for-the-badge&logo=npm&logoColor=%2310b981" alt="npm" />
   </a>
 </p>
 
