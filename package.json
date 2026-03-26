@@ -1,6 +1,6 @@
 {
   "name": "toast-anchor",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A lightweight, zero-dependency toast, anchored tooltip, and modal library.",
   "files": [
     "dist"
