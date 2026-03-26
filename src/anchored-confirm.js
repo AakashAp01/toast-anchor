@@ -2,67 +2,18 @@
  * anchored-confirm.js — Inline yes/no confirmation popup anchored to a DOM element.
  *
  * Positions: 'top' | 'bottom' | 'left' | 'right'
+ * Features Smart Positioning: Flips side if there isn't enough screen space.
  */
 
 import { DEFAULTS }  from './defaults.js';
 import { ICONS }     from './icons.js';
 import { playSound } from './audio.js';
-import { placeElement, arrowStyle, entryTransform, exitTransform } from './anchored-toast.js';
+// We must import the new getOptimalSide function here!
+import { placeElement, getOptimalSide, arrowStyle, entryTransform, exitTransform } from './anchored-toast.js';
 
 // Track last anchored confirm per anchor for auto-dismiss on re-trigger
 const _confirmMap = new WeakMap();
 
-/**
- * Show an inline confirmation popup anchored to an element.
- *
- * @param {string}      message
- * @param {HTMLElement} anchor
- * @param {function}    [onConfirm]
- * @param {function}    [onCancel]
- * @param {object}      [options]
- *
- * ─── Behaviour ───────────────────────────────────────────────────────────────
- * @param {string}  [options.confirmLabel='Yes']
- * @param {string}  [options.cancelLabel='No']
- * @param {boolean} [options.sound]
- *
- * ─── Position ────────────────────────────────────────────────────────────────
- * @param {'top'|'bottom'|'left'|'right'} [options.position='top']
- * @param {number}  [options.gap]
- * @param {boolean} [options.showArrow=true]
- * @param {number}  [options.arrowSize]
- *
- * ─── Style overrides (merged over DEFAULTS.anchoredConfirm) ──────────────────
- * @param {string}  [options.bg]              popup background
- * @param {string}  [options.color]           message text color
- * @param {string}  [options.borderColor]
- * @param {string}  [options.borderWidth]
- * @param {string}  [options.borderRadius]
- * @param {string}  [options.shadow]
- * @param {string}  [options.padding]
- * @param {string}  [options.fontSize]
- * @param {string}  [options.minWidth]
- * @param {string}  [options.confirmBg]
- * @param {string}  [options.confirmColor]
- * @param {string}  [options.confirmHoverBg]
- * @param {string}  [options.cancelBg]
- * @param {string}  [options.cancelColor]
- * @param {string}  [options.cancelHoverBg]
- * @param {string}  [options.cancelBorder]    cancel button border color
- * @param {string}  [options.btnRadius]
- * @param {string}  [options.btnFontSize]
- * @param {string}  [options.btnFontWeight]
- * @param {string}  [options.btnPadding]
- *
- * @example
- * anchoredConfirm(
- *   'Delete this item?',
- *   buttonEl,
- *   () => deleteItem(),
- *   null,
- *   { position: 'bottom', confirmBg: '#7c3aed', confirmHoverBg: '#6d28d9' }
- * );
- */
 export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = {}) {
   if (typeof document === 'undefined' || !anchor) return;
 
@@ -74,7 +25,9 @@ export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = 
     ...options,
   };
 
-  const side = o.position;
+  const requestedSide = o.position || 'top';
+  const gap = o.gap !== undefined ? o.gap : 8; // default distance
+
   if (o.sound) playSound('warning');
 
   // Auto-dismiss any previous anchored confirm on this anchor
@@ -97,10 +50,10 @@ export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = 
     `min-width:${o.minWidth}`,
     'pointer-events:auto',
     'transition:opacity 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-    'opacity:0',
-    `transform:${entryTransform(side)}`,
+    'opacity:0', // Keep hidden without transforms so we can measure it accurately
   ].join(';'));
 
+  // Notice we removed the arrow from the initial HTML injection
   el.innerHTML = `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
       ${showIcon ? `<div style="width:15px;height:15px;flex-shrink:0;color:#fca5a5">${ICONS.warning}</div>` : ''}
@@ -130,12 +83,27 @@ export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = 
         transition:background 0.15s;
       ">${o.confirmLabel}</button>
     </div>
-    ${o.showArrow ? `<div style="${arrowStyle(side, o.arrowSize, o.bg, o.borderColor, o.borderWidth)}"></div>` : ''}
   `.trim();
 
   document.body.appendChild(el);
-  placeElement(el, anchor, side, o.gap);
 
+  // --- COLLISION DETECTION ---
+  // Determine actual side based on available screen space
+  const actualSide = getOptimalSide(el, anchor, requestedSide, gap);
+
+  // --- FINAL DOM UPDATES ---
+  // Now add the arrow pointing to the newly determined side
+  if (o.showArrow !== false) {
+    el.insertAdjacentHTML('beforeend', `<div style="${arrowStyle(actualSide, o.arrowSize || 8, o.bg, o.borderColor, o.borderWidth)}"></div>`);
+  }
+
+  // Apply entrance transform based on the actual side
+  el.style.transform = entryTransform(actualSide);
+
+  // Position it correctly
+  placeElement(el, anchor, actualSide, gap);
+
+  // Trigger Entrance Animation
   requestAnimationFrame(() => requestAnimationFrame(() => {
     el.style.opacity   = '1';
     el.style.transform = 'scale(1) translate(0,0)';
@@ -144,7 +112,7 @@ export function anchoredConfirm(message, anchor, onConfirm, onCancel, options = 
   const dismiss = () => {
     _confirmMap.delete(anchor);
     el.style.opacity   = '0';
-    el.style.transform = exitTransform(side);
+    el.style.transform = exitTransform(actualSide); // Exit towards the correct side
     setTimeout(() => el.remove(), 280);
   };
 
