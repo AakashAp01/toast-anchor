@@ -3,6 +3,7 @@
  *
  * Positions: 'top' | 'bottom' | 'left' | 'right'
  * Arrow and entry animation automatically adapt to the chosen side.
+ * Features Smart Positioning: Flips side if there isn't enough screen space.
  */
 
 import { DEFAULTS }  from './defaults.js';
@@ -13,34 +14,31 @@ import { playSound } from './audio.js';
 
 /**
  * Position a floating element relative to an anchor rect.
- * Must be called after the element is in the DOM so its size is measurable.
- * @param {HTMLElement} el
- * @param {HTMLElement} anchor
- * @param {'top'|'bottom'|'left'|'right'} side
- * @param {number} gap  px distance between arrow tip and anchor edge
+ * Uses offsetWidth/offsetHeight so CSS scale animations don't mess up measurements.
  */
 export function placeElement(el, anchor, side, gap) {
   const ar = anchor.getBoundingClientRect();
-  const er = el.getBoundingClientRect();
+  const eWidth = el.offsetWidth;
+  const eHeight = el.offsetHeight;
   const sx = window.scrollX, sy = window.scrollY;
   let top, left;
 
   switch (side) {
     case 'bottom':
       top  = ar.bottom + sy + gap;
-      left = ar.left   + sx + ar.width  / 2 - er.width  / 2;
+      left = ar.left   + sx + ar.width  / 2 - eWidth  / 2;
       break;
     case 'left':
-      top  = ar.top    + sy + ar.height / 2 - er.height / 2;
-      left = ar.left   + sx - er.width  - gap;
+      top  = ar.top    + sy + ar.height / 2 - eHeight / 2;
+      left = ar.left   + sx - eWidth  - gap;
       break;
     case 'right':
-      top  = ar.top    + sy + ar.height / 2 - er.height / 2;
+      top  = ar.top    + sy + ar.height / 2 - eHeight / 2;
       left = ar.right  + sx + gap;
       break;
     default: // 'top'
-      top  = ar.top    + sy - er.height - gap;
-      left = ar.left   + sx + ar.width  / 2 - er.width  / 2;
+      top  = ar.top    + sy - eHeight - gap;
+      left = ar.left   + sx + ar.width  / 2 - eWidth  / 2;
   }
 
   el.style.top  = `${top}px`;
@@ -48,24 +46,55 @@ export function placeElement(el, anchor, side, gap) {
 }
 
 /**
+ * Calculates the best side to display the toast based on viewport space.
+ */
+export function getOptimalSide(el, anchor, preferredSide, gap) {
+  const eWidth = el.offsetWidth;
+  const eHeight = el.offsetHeight;
+  const ar = anchor.getBoundingClientRect();
+  
+  // Viewport dimensions
+  const vw = document.documentElement.clientWidth;
+  const vh = document.documentElement.clientHeight;
+
+  // Available space on all 4 sides of the anchor
+  const space = {
+    top: ar.top,
+    bottom: vh - ar.bottom,
+    left: ar.left,
+    right: vw - ar.right
+  };
+
+  // Required space on all 4 sides
+  const needed = {
+    top: eHeight + gap,
+    bottom: eHeight + gap,
+    left: eWidth + gap,
+    right: eWidth + gap
+  };
+
+  // 1. Try preferred side first
+  if (space[preferredSide] >= needed[preferredSide]) return preferredSide;
+
+  // 2. If it fails, try the exact opposite side
+  const opposite = { top: 'bottom', bottom: 'top', left: 'right', right: 'left' };
+  if (space[opposite[preferredSide]] >= needed[opposite[preferredSide]]) return opposite[preferredSide];
+
+  // 3. If vertical fails, try horizontal (and vice versa)
+  const fallbacks = preferredSide === 'top' || preferredSide === 'bottom' 
+    ? ['right', 'left'] 
+    : ['bottom', 'top'];
+
+  for (const fallback of fallbacks) {
+    if (space[fallback] >= needed[fallback]) return fallback;
+  }
+
+  // 4. Default back to preferred if screen is just too small everywhere
+  return preferredSide;
+}
+
+/**
  * Build inline style for the caret arrow (rotated square).
- *
- * Only the two border edges that visually continue the container's border
- * are rendered; the other two are transparent so the arrow merges cleanly
- * into the popup.
- *
- * Mapping (after 45° rotation):
- *   side='top'    → arrow at bottom  → border-bottom + border-right
- *   side='bottom' → arrow at top     → border-top    + border-left
- *   side='left'   → arrow at right   → border-top    + border-right
- *   side='right'  → arrow at left    → border-bottom + border-left
- *
- * @param {'top'|'bottom'|'left'|'right'} side  which side the popup appears on
- * @param {number} size      diamond side length in px
- * @param {string} bg        background color (matches popup bg)
- * @param {string} borderColor
- * @param {string} borderWidth
- * @returns {string} inline style string
  */
 export function arrowStyle(side, size, bg, borderColor, borderWidth) {
   const half = size / 2;
@@ -73,22 +102,21 @@ export function arrowStyle(side, size, bg, borderColor, borderWidth) {
   const bc   = borderColor || 'transparent';
   const hasBorder = bw !== '0px';
 
-  // Build per-side border (only 2 edges visible per position)
   let borderCSS = '';
   if (hasBorder) {
     const solid = `${bw} solid ${bc}`;
     const none  = `${bw} solid transparent`;
     switch (side) {
-      case 'top':    // arrow points down → bottom + right edges visible
+      case 'top':    
         borderCSS = `border-top:${none};border-right:${solid};border-bottom:${solid};border-left:${none};`;
         break;
-      case 'bottom': // arrow points up   → top + left edges visible
+      case 'bottom': 
         borderCSS = `border-top:${solid};border-right:${none};border-bottom:${none};border-left:${solid};`;
         break;
-      case 'left':   // arrow points right → top + right edges visible
+      case 'left':   
         borderCSS = `border-top:${solid};border-right:${solid};border-bottom:${none};border-left:${none};`;
         break;
-      case 'right':  // arrow points left  → bottom + left edges visible
+      case 'right':  
         borderCSS = `border-top:${none};border-right:${none};border-bottom:${solid};border-left:${solid};`;
         break;
     }
@@ -104,7 +132,6 @@ export function arrowStyle(side, size, bg, borderColor, borderWidth) {
   }
 }
 
-/** Entry transform (popup slides in from opposite side of anchor). */
 export function entryTransform(side) {
   switch (side) {
     case 'bottom': return 'scale(0.88) translateY(-8px)';
@@ -114,7 +141,6 @@ export function entryTransform(side) {
   }
 }
 
-/** Exit transform. */
 export function exitTransform(side) {
   switch (side) {
     case 'bottom': return 'scale(0.9) translateY(-4px)';
@@ -126,52 +152,19 @@ export function exitTransform(side) {
 
 // ── anchoredToast ────────────────────────────────────────────────────────────
 
-// Track last anchored toast per anchor for auto-dismiss on re-trigger
 const _anchoredMap = new WeakMap();
 
-/**
- * Show a tooltip-style toast anchored to a DOM element.
- *
- * @param {string}      message
- * @param {HTMLElement} anchor
- * @param {object}      [options]
- *
- * ─── Behaviour ───────────────────────────────────────────────────────────────
- * @param {'success'|'error'|'warning'|'info'} [options.type='success']
- * @param {number}  [options.duration=2500]   ms; 0 = manual dismiss only
- * @param {boolean} [options.sound]
- * @param {string}  [options.icon]            custom icon HTML
- *
- * ─── Position ────────────────────────────────────────────────────────────────
- * @param {'top'|'bottom'|'left'|'right'} [options.position='top']
- * @param {number}  [options.gap]             px gap between arrow tip and anchor
- * @param {boolean} [options.showArrow=true]
- * @param {number}  [options.arrowSize]       diamond side length in px
- *
- * ─── Style overrides (merged over DEFAULTS.anchored) ─────────────────────────
- * @param {string}  [options.bg]
- * @param {string}  [options.color]
- * @param {string}  [options.borderColor]
- * @param {string}  [options.borderWidth]
- * @param {string}  [options.borderRadius]
- * @param {string}  [options.shadow]
- * @param {string}  [options.padding]
- * @param {string}  [options.fontSize]
- * @param {string}  [options.fontWeight]
- *
- * @returns {function} dismiss
- */
 export function anchoredToast(message, anchor, options = {}) {
   if (typeof document === 'undefined' || !anchor) return () => {};
 
   const o = { type: 'success', duration: 2500, sound: DEFAULTS.sound, icon: null, ...DEFAULTS.anchored, ...options };
   const theme = DEFAULTS.theme[o.type] || DEFAULTS.theme.success;
   const icon  = o.icon || ICONS[o.type];
-  const side  = o.position;
+  const requestedSide = o.position || 'top';
+  const gap = o.gap !== undefined ? o.gap : 8; // default distance
 
   if (o.sound) playSound(o.type);
 
-  // Auto-dismiss any previous anchored toast on this anchor
   const prevDismiss = _anchoredMap.get(anchor);
   if (prevDismiss) prevDismiss();
 
@@ -192,21 +185,37 @@ export function anchoredToast(message, anchor, options = {}) {
     'pointer-events:none',
     'white-space:nowrap',
     'transition:opacity 0.3s ease,transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-    'opacity:0',
-    `transform:${entryTransform(side)}`,
+    'opacity:0', // Keep hidden while we measure
+    // Note: We DO NOT apply the initial transform yet, as scale affects measurements
   ].join(';'));
 
+  // Append just the content first to get an accurate width/height measurement
   el.innerHTML = `
     <div style="display:flex;align-items:center;gap:7px">
       ${showIcon ? `<div style="width:15px;height:15px;display:flex;flex-shrink:0;color:${theme.bg}">${icon}</div>` : ''}
       <span>${message}</span>
     </div>
-    ${o.showArrow ? `<div style="${arrowStyle(side, o.arrowSize, o.bg, o.borderColor, o.borderWidth)}"></div>` : ''}
   `.trim();
 
   document.body.appendChild(el);
-  placeElement(el, anchor, side, o.gap);
 
+  // --- COLLISION DETECTION ---
+  // Determine if it fits on requested side, otherwise flip it automatically
+  const actualSide = getOptimalSide(el, anchor, requestedSide, gap);
+
+  // --- FINAL DOM UPDATES ---
+  // Now add the arrow pointing to the newly determined side
+  if (o.showArrow) {
+    el.insertAdjacentHTML('beforeend', `<div style="${arrowStyle(actualSide, o.arrowSize, o.bg, o.borderColor, o.borderWidth)}"></div>`);
+  }
+
+  // Apply entrance transform based on the actual side
+  el.style.transform = entryTransform(actualSide);
+
+  // Position it correctly
+  placeElement(el, anchor, actualSide, gap);
+
+  // Trigger Entrance Animation
   requestAnimationFrame(() => requestAnimationFrame(() => {
     el.style.opacity   = '1';
     el.style.transform = 'scale(1) translate(0,0)';
@@ -215,7 +224,7 @@ export function anchoredToast(message, anchor, options = {}) {
   const dismiss = () => {
     _anchoredMap.delete(anchor);
     el.style.opacity   = '0';
-    el.style.transform = exitTransform(side);
+    el.style.transform = exitTransform(actualSide); // Exit towards the correct side
     setTimeout(() => el.remove(), 300);
   };
 
